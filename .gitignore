@@ -17,3 +17,5 @@ Animation.sdf
 Animation.suo
 Animation.vcxproj.user
 external
+/Release
+/Animation.opensdf

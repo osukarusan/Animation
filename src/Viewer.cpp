@@ -84,10 +84,10 @@ void Viewer::InitLight()
 
 void Viewer::InitTextures()
 {
-	static float texdata[3*4*4] = {	0.82f, 0.82f, 0.92f, 
-									0.39f, 0.38f, 0.47f,
-									0.39f, 0.38f, 0.47f,
-									0.82f, 0.82f, 0.92f
+	static float texdata[3*4*4] = {	0.88f, 0.88f, 0.92f, 
+									0.38f, 0.38f, 0.45f,
+									0.38f, 0.38f, 0.45f,
+									0.88f, 0.88f, 0.92f
 	};
 
 	glGenTextures(1, &quadsTexId);

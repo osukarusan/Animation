@@ -1,6 +1,7 @@
 #include "AnimScene.h"
 #include "configs.h"
 #include "GL/glut.h"
+#include "ModelLoader.h"
 
 
 AnimScene::AnimScene(void)
@@ -11,11 +12,11 @@ AnimScene::AnimScene(void)
 
 AnimScene::~AnimScene(void)
 {
+	if (m_system)	delete m_system;
 }
 
 void AnimScene::initScene() 
 {
-	if (m_system) delete m_system;
 	m_system = new ParticleSystem();
 
 	for (int i = 0; i < NUM_AGENTS; i++) {
@@ -29,7 +30,48 @@ void AnimScene::initScene()
 	m_boxContainer.setSize(Vec3d(20, 20, 20));
 	m_boxContainer.useInnerSide(true);
 
+	loadModels();
 }
+
+void AnimScene::loadModels()
+{
+	Model *pModel;
+	ModelData* data;
+
+	// load 'skeleton' model
+	std::cout << "Loading 'skeleton' model ..." << std::endl;
+	data = ModelLoader::getModel("skeleton", "data/skeleton/", "data/skeleton.cfg");
+	if (data) {
+		pModel = new Model();
+		pModel->setCoreModel(data->coreModel);
+		pModel->setAnimationIds(data->animationIds);
+		pModel->onInit();
+		m_models.push_back(pModel);
+	}
+	else {
+		std::cerr << "Model initialization failed! (skeleton)" << std::endl;
+		return;
+	}
+	std::cout << std::endl;
+
+	// load 'paladin' model
+	std::cout << "Loading 'paladin' model ..." << std::endl;
+	data = ModelLoader::getModel("paladin", "data/paladin/", "data/paladin.cfg");
+	if (data) {
+		pModel = new Model();
+		pModel->setCoreModel(data->coreModel);
+		pModel->setAnimationIds(data->animationIds);
+		pModel->onInit();
+		m_models.push_back(pModel);
+	}
+	else {
+		std::cerr << "Model initialization failed! (paladin)" << std::endl;
+		return;
+	}
+	std::cout << std::endl;
+
+}
+
 
 void AnimScene::update(double timeStep) 
 {
@@ -53,17 +95,24 @@ void AnimScene::update(double timeStep)
 		}
 	}
 
+	// models
+	for (int i = 0; i < m_models.size(); i++)
+		m_models[i]->onUpdate(timeStep);
+
 }
 
 void AnimScene::draw() 
 {
 	int numParticles = m_system->getNumParticles();
-	glColor3f(1, 0, 0);
+	glColor3f(1, 1, 1);
 	for (int i = 0; i < numParticles; i++) {
 		Particle *p = m_system->getParticle(i);
 		glPushMatrix();
 		glTranslatef(p->pos[0], p->pos[1] + 0.25, p->pos[2]);
-		glutSolidSphere(0.25f, 8, 8);
+		glScalef(0.01, 0.01, 0.01);
+		glRotatef(-90, 1, 0, 0);
+		m_models[1]->onRender();
+
 		glPopMatrix();
 	}
 

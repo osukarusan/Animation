@@ -74,9 +74,12 @@
     <ClInclude Include="include\EulerIntegrator.h" />
     <ClInclude Include="include\Force.h" />
     <ClInclude Include="include\Integrator.h" />
+    <ClInclude Include="include\model.h" />
+    <ClInclude Include="include\ModelLoader.h" />
     <ClInclude Include="include\Particle.h" />
     <ClInclude Include="include\ParticleSystem.h" />
     <ClInclude Include="include\PhysicsSystem.h" />
+    <ClInclude Include="include\tga.h" />
     <ClInclude Include="include\Viewer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -86,10 +89,13 @@
     <ClCompile Include="src\EulerIntegrator.cpp" />
     <ClCompile Include="src\Force.cpp" />
     <ClCompile Include="src\Integrator.cpp" />
+    <ClCompile Include="src\model.cpp" />
+    <ClCompile Include="src\ModelLoader.cpp" />
     <ClCompile Include="src\Particle.cpp" />
     <ClCompile Include="src\ParticleSystem.cpp" />
     <ClCompile Include="src\PhysicsSystem.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\tga.cpp" />
     <ClCompile Include="src\Viewer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

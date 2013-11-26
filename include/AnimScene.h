@@ -4,7 +4,8 @@
 #include "ParticleSystem.h"
 #include "EulerIntegrator.h"
 #include "CollisionAABB.h"
-
+#include "model.h"
+#include <vector>
 
 class AnimScene
 {
@@ -18,9 +19,13 @@ public:
 
 private:
 
+	void loadModels();
+
 	ParticleSystem* m_system;
 	EulerIntegrator m_integrator;
 	CollisionAABB   m_boxContainer;
+
+	std::vector<Model*> m_models;
 
 };
 
