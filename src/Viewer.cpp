@@ -1,8 +1,6 @@
 #include "viewer.h"
 #include "GL/glut.h"
 
-#include "configs.h"
-
 int Viewer::win_w = 640;
 int Viewer::win_h = 640;
 
@@ -19,6 +17,7 @@ float Viewer::ry =   0.0f;
 bool Viewer::wire = false;
 
 unsigned int Viewer::quadsTexId = 0;
+unsigned long long Viewer::lastTime = 0;
 
 AnimScene* Viewer::scene = 0;
 
@@ -58,6 +57,8 @@ void Viewer::Init(int argc, char *argv[])
 	if (scene) delete scene;
 	scene = new AnimScene();
 	scene->initScene();
+
+	lastTime = getTime();
 }
 
 void Viewer::InitLight()
@@ -84,10 +85,10 @@ void Viewer::InitLight()
 
 void Viewer::InitTextures()
 {
-	static float texdata[3*4*4] = {	0.88f, 0.88f, 0.92f, 
-									0.38f, 0.38f, 0.45f,
-									0.38f, 0.38f, 0.45f,
-									0.88f, 0.88f, 0.92f
+	static float texdata[3*4*4] = {	0.78f, 0.78f, 0.82f, 
+									0.58f, 0.58f, 0.65f,
+									0.58f, 0.58f, 0.65f,
+									0.78f, 0.78f, 0.82f
 	};
 
 	glGenTextures(1, &quadsTexId);
@@ -145,9 +146,13 @@ void Viewer::Display(void)
 
 void Viewer::Idle() {
 
-	scene->update(SIM_TIMESTEP);
-	glutPostRedisplay();
+	unsigned long long fr = getTimerFrequency();
+	unsigned long long t0 = lastTime;
+	unsigned long long t1 = getTime();
+	lastTime = t1;
 
+	scene->update(double(t1 - t0)/fr);
+	glutPostRedisplay();
 }
 
 

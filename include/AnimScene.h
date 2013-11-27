@@ -4,8 +4,11 @@
 #include "ParticleSystem.h"
 #include "EulerIntegrator.h"
 #include "CollisionAABB.h"
-#include "model.h"
+#include "Agent.h"
 #include <vector>
+
+#define NUM_AGENTS	5
+
 
 class AnimScene
 {
@@ -19,13 +22,12 @@ public:
 
 private:
 
-	void loadModels();
-
 	ParticleSystem* m_system;
 	EulerIntegrator m_integrator;
 	CollisionAABB   m_boxContainer;
 
 	std::vector<Model*> m_models;
+	std::vector<Agent*> m_agents;
 
 };
 

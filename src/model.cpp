@@ -1,10 +1,5 @@
-#if defined(_MSC_VER) && _MSC_VER <= 0x0600
-#pragma warning(disable : 4786)
-#endif
-
-#include "model.h"
+#include "Model.h"
 #include "tga.h"
-
 
 const int Model::STATE_IDLE = 0;
 const int Model::STATE_FANCY = 1;
@@ -58,11 +53,30 @@ bool Model::onInit()
   // set the material set of the whole model
   m_calModel->setMaterialSet(0);
 
-  // set initial animation state
-  m_state = STATE_MOTION;
-  m_calModel->getMixer()->blendCycle(m_animationId[STATE_MOTION], m_motionBlend[0], 0.0f);
-  m_calModel->getMixer()->blendCycle(m_animationId[STATE_MOTION + 1], m_motionBlend[1], 0.0f);
-  m_calModel->getMixer()->blendCycle(m_animationId[STATE_MOTION + 2], m_motionBlend[2], 0.0f);
+  // compute bbox
+  setState(STATE_IDLE, 0);
+  m_calModel->update(0);
+  m_calModel->getSkeleton()->calculateBoundingBoxes();
+  std::vector<CalBone*> &bones = m_calModel->getSkeleton()->getVectorBone();
+  for (unsigned int i = 0; i < bones.size(); i++) {
+	  CalVector p[8];
+	  bones[i]->getBoundingBox().computePoints(p);
+	  if (i == 0) {
+		  m_bbMin = Vec3f(p[0].x, p[0].z, p[0].y);
+		  m_bbMax = Vec3f(p[0].x, p[0].z, p[0].y);
+	  }
+	  for (int j = 0; j < 8; j++) {
+		  if (p[j].x < m_bbMin[0]) m_bbMin[0] = p[j].x;
+		  if (p[j].z < m_bbMin[1]) m_bbMin[1] = p[j].z;
+		  if (p[j].y < m_bbMin[2]) m_bbMin[2] = p[j].y;
+		  if (p[j].x > m_bbMax[0]) m_bbMax[0] = p[j].x;
+		  if (p[j].z > m_bbMax[1]) m_bbMax[1] = p[j].z;
+		  if (p[j].y > m_bbMax[2]) m_bbMax[2] = p[j].y;
+	  }
+  }
+
+  // initial state
+  setState(STATE_MOTION, 0);
 
   return true;
 }
@@ -129,7 +143,6 @@ void Model::renderBoundingBox()
 
 	  CalVector p[8];
 	  calBoundingBox.computePoints(p);
-
 	  
 	  glVertex3f(p[0].x,p[0].y,p[0].z);
 	  glVertex3f(p[1].x,p[1].y,p[1].z);

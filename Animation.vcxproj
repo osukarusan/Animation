@@ -42,6 +42,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>include;external\glut;external\vl\include;external\cal3d;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>DEBUG;WIN32;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -56,6 +57,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>include;external\glut;external\vl\include;external\cal3d;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -66,15 +68,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\Agent.h" />
     <ClInclude Include="include\AnimScene.h" />
     <ClInclude Include="include\CollisionAABB.h" />
     <ClInclude Include="include\CollisionTest.h" />
-    <ClInclude Include="include\configs.h" />
     <ClInclude Include="include\defines.h" />
     <ClInclude Include="include\EulerIntegrator.h" />
     <ClInclude Include="include\Force.h" />
     <ClInclude Include="include\Integrator.h" />
-    <ClInclude Include="include\model.h" />
+    <ClInclude Include="include\Model.h" />
     <ClInclude Include="include\ModelLoader.h" />
     <ClInclude Include="include\Particle.h" />
     <ClInclude Include="include\ParticleSystem.h" />
@@ -83,13 +85,14 @@
     <ClInclude Include="include\Viewer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Agent.cpp" />
     <ClCompile Include="src\AnimScene.cpp" />
     <ClCompile Include="src\CollisionAABB.cpp" />
     <ClCompile Include="src\CollisionTest.cpp" />
     <ClCompile Include="src\EulerIntegrator.cpp" />
     <ClCompile Include="src\Force.cpp" />
     <ClCompile Include="src\Integrator.cpp" />
-    <ClCompile Include="src\model.cpp" />
+    <ClCompile Include="src\Model.cpp" />
     <ClCompile Include="src\ModelLoader.cpp" />
     <ClCompile Include="src\Particle.cpp" />
     <ClCompile Include="src\ParticleSystem.cpp" />

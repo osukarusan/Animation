@@ -30,6 +30,7 @@ public:
 private:
 
 	static AnimScene* scene;
+	static unsigned long long lastTime;
 	static unsigned int quadsTexId;
 
 	void InitLight();

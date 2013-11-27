@@ -51,19 +51,19 @@
     <ClInclude Include="include\PhysicsSystem.h">
       <Filter>Header Files\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="include\configs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\AnimScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\tga.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\model.h">
+    <ClInclude Include="include\ModelLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\ModelLoader.h">
+    <ClInclude Include="include\Agent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -104,10 +104,13 @@
     <ClCompile Include="src\tga.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\model.cpp">
+    <ClCompile Include="src\ModelLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ModelLoader.cpp">
+    <ClCompile Include="src\Agent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
