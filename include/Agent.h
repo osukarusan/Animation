@@ -12,9 +12,13 @@ public:
 
 	void init(int type, Model* m, Particle* p, float height);
 	void update(float dt);
-	void draw();
+	void draw(bool drawPath = false);
 
-	int	 getType();
+	void followPath(const std::vector<Vec3d>& path);
+	bool finishedCurrentPath() const;
+
+	int		getType() const;
+	Vec3d	getPosition() const;
 	
 private:
 
@@ -24,12 +28,27 @@ private:
 	float		m_scale;
 	float		m_height;
 	float		m_offVert;
+	float		m_radius;
+	float		m_velocity;
+	
 	Particle*	m_particle;
+
+	std::vector<Vec3d>  m_path;
+	unsigned int		m_nextWaypoint;
 
 };
 
-inline int Agent::getType() {
+inline int Agent::getType() const {
 	return m_type;
 }
+
+inline Vec3d Agent::getPosition() const {
+	return m_particle->pos;
+}
+
+inline bool Agent::finishedCurrentPath() const {
+	return m_nextWaypoint >= m_path.size();
+}
+
 
 #endif

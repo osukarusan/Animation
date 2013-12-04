@@ -162,6 +162,8 @@ void Viewer::Keyboard(unsigned char key, int x, int y) {
 		case  'q':
 			exit(0);
 			break; 
+		case 'p':
+			scene->setDrawPathId((scene->getDrawPathId() + 1)%(NUM_AGENTS + 1));
 	}
 	glutPostRedisplay();
 }

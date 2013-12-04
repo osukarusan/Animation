@@ -78,6 +78,7 @@
     <ClInclude Include="include\Integrator.h" />
     <ClInclude Include="include\Model.h" />
     <ClInclude Include="include\ModelLoader.h" />
+    <ClInclude Include="include\NavigationGrid.h" />
     <ClInclude Include="include\Particle.h" />
     <ClInclude Include="include\ParticleSystem.h" />
     <ClInclude Include="include\PhysicsSystem.h" />
@@ -94,6 +95,7 @@
     <ClCompile Include="src\Integrator.cpp" />
     <ClCompile Include="src\Model.cpp" />
     <ClCompile Include="src\ModelLoader.cpp" />
+    <ClCompile Include="src\NavigationGrid.cpp" />
     <ClCompile Include="src\Particle.cpp" />
     <ClCompile Include="src\ParticleSystem.cpp" />
     <ClCompile Include="src\PhysicsSystem.cpp" />

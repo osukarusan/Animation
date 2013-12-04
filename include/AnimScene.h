@@ -5,10 +5,10 @@
 #include "EulerIntegrator.h"
 #include "CollisionAABB.h"
 #include "Agent.h"
+#include "NavigationGrid.h"
 #include <vector>
 
 #define NUM_AGENTS	5
-
 
 class AnimScene
 {
@@ -20,6 +20,9 @@ public:
 	void update(double time);
 	void draw();
 
+	int  getDrawPathId() const;
+	void setDrawPathId(int id);
+
 private:
 
 	ParticleSystem* m_system;
@@ -28,7 +31,18 @@ private:
 
 	std::vector<Model*> m_models;
 	std::vector<Agent*> m_agents;
+	NavigationGrid*		m_grid;
+
+	int m_drawPathId;
 
 };
+
+inline void AnimScene::setDrawPathId(int id) {
+	m_drawPathId = id;
+}
+
+inline int AnimScene::getDrawPathId() const {
+	return m_drawPathId;
+}
 
 #endif

@@ -2,11 +2,14 @@
 #include "GL/glut.h"
 #include "ModelLoader.h"
 #include "defines.h"
+#include <fstream>
 
 
 AnimScene::AnimScene(void)
 {
 	m_system = 0;
+	m_grid = 0;
+	m_drawPathId = -1;
 }
 
 
@@ -15,13 +18,14 @@ AnimScene::~AnimScene(void)
 	if (m_system)	
 		delete m_system;
 
+	if (m_grid)
+		delete m_grid;
+
 	for (unsigned int i = 0; i < m_models.size(); i++)
 		delete m_models[i];
-	m_models.clear();
 
 	for (unsigned int i = 0; i < m_agents.size(); i++) 
 		delete m_agents[i];
-	m_agents.clear();
 }
 
 
@@ -50,7 +54,29 @@ void loadModels(std::vector<ModelData*>& models)
 	std::cout << std::endl;
 }
 
+NavigationGrid* loadGrid() 
+{
+	int nrows, ncols;
+	float width, height;
+	std::vector<std::vector<int> > cells;
 
+	std::fstream fin;
+	fin.open("data/scene.txt", std::fstream::in);
+	fin >> nrows >> ncols;
+	fin >> width >> height;
+	cells.resize(nrows);
+	for (int i = 0; i < nrows; i++) {
+		cells[i].resize(ncols);
+		for (int j = 0; j < ncols; j++) {
+			fin >> cells[i][j];
+		}
+	}
+	fin.close();
+
+	NavigationGrid* grid = new NavigationGrid();
+	grid->init(cells, -0.5f*width, -0.5f*height, 0.5f*width, 0.5f*height);
+	return grid;
+}
 
 void AnimScene::initScene() 
 {
@@ -59,11 +85,23 @@ void AnimScene::initScene()
 	loadModels(modelsData);
 	int NUM_MODELS = modelsData.size();
 
-	// particles
+	// load scene
+	std::cout << "Loading scene description ..." << std::endl;
+	m_grid = loadGrid();
+
+	// agents
+	std::cout << std::endl;
+	std::cout << "Initializing agents..." << std::endl;
 	m_system = new ParticleSystem();
 	for (int i = 0; i < NUM_AGENTS; i++) {
+		std::cout << "    Agent " << i << std::endl;
+
 		Particle* p = new Particle();
-		p->pos = p->prevPos = Vec3d(20.0*random01() - 10, 0, 20.0*random01() - 10);
+		Vec3d pos;
+		do {
+			pos = Vec3d(20.0*random01() - 10, 0, 20.0*random01() - 10);
+		} while (!m_grid->walkable(pos));
+		p->pos = p->prevPos = pos;
 		p->vel = p->prevVel = (1.5*random01() + 0.5) * norm(Vec3d(random01(), 0, random01()));
 		m_system->addParticle(p);	
 
@@ -83,6 +121,16 @@ void AnimScene::initScene()
 		Agent* a = new Agent();
 		a->init(t, m, p, h);
 		m_agents.push_back(a);
+
+		std::vector<Vec3d> apath;
+		do {
+			Vec3d dest;
+			do {
+				dest = Vec3d(20.0*random01() - 10, 0, 20.0*random01() - 10);
+			} while (!m_grid->walkable(dest));
+			m_grid->findPath(pos, dest, apath);
+		} while (apath.size() <= 0);
+		m_agents.back()->followPath(apath);
 	}
 
 	// world limits (min_y is not at 0 since we do not want to detect collisions with it)
@@ -116,8 +164,20 @@ void AnimScene::update(double dt)
 	}
 
 	// agents
-	for (int i = 0; i < m_agents.size(); i++)
+	for (int i = 0; i < m_agents.size(); i++) {
 		m_agents[i]->update(dt);
+		if (m_agents[i]->finishedCurrentPath()) {
+			std::vector<Vec3d> apath;
+			do {
+				Vec3d dest;
+				do {
+					dest = Vec3d(20.0*random01() - 10, 0, 20.0*random01() - 10);
+				} while (!m_grid->walkable(dest));
+				m_grid->findPath(m_agents[i]->getPosition(), dest, apath);
+			} while (apath.size() <= 0);
+			m_agents[i]->followPath(apath);
+		}
+	}
 
 }
 
@@ -125,6 +185,6 @@ void AnimScene::draw()
 {
 	glColor3f(1, 1, 1);
 	for (int i = 0; i < m_agents.size(); i++) {
-		m_agents[i]->draw();
+		m_agents[i]->draw(i == m_drawPathId);
 	}
 }
