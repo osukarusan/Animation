@@ -59,7 +59,7 @@ float NavigationGrid::heuristic(int cellFrom, int cellTo)
 	int r0 = cellFrom/m_cols;
 	int c1 = cellTo  %m_cols;
 	int r1 = cellTo  /m_cols;
-	return float((r1 - r0)*(r1 - r0) + (c1 - c0)*(c1 - c0));
+	return std::sqrt(float((r1 - r0)*(r1 - r0) + (c1 - c0)*(c1 - c0)));
 }
 
 bool NavigationGrid::findPath(const Vec3d& ini, const Vec3d& end, std::vector<Vec3d>& path) 
@@ -136,11 +136,11 @@ bool NavigationGrid::findPath(const Vec3d& ini, const Vec3d& end, std::vector<Ve
 	if (arrived) {
 		path.push_back(end);
 		int vcell = previous[endCell];
-		while (vcell != iniCell) {
+		while (vcell >= 0 && vcell != iniCell) {
 			int vr = vcell/m_cols;
 			int vc = vcell%m_cols;
-			Vec3d vp(m_offZ + (vr + 0.5)*m_sizeZ, 0, m_offX + (vc + 0.5)*m_sizeX);
-			path.push_back(vp);
+			Vec3d vp(m_offX + (vc + 0.5)*m_sizeX, 0, m_offZ + (vr + 0.5)*m_sizeZ);
+			path.insert(path.begin(), vp);
 			vcell = previous[vcell];
 		}
 	}
