@@ -29,6 +29,8 @@ private:
 
 	ParticleSystem* m_system;
 	EulerIntegrator m_integrator;
+
+	// TODO: change this for a vector of containers
 	CollisionAABB   m_boxContainer;
 
 	std::vector<Model*> m_models;

@@ -66,7 +66,7 @@ NavigationGrid* loadGrid()
 	fin.open("data/scene.txt", std::fstream::in);
 	fin >> AnimScene::NUM_AGENTS;
 	fin >> nrows >> ncols;
-	fin >> width >> height;
+	fin >> height >> width;
 	cells.resize(nrows);
 	for (int i = 0; i < nrows; i++) {
 		cells[i].resize(ncols);
@@ -224,10 +224,10 @@ void AnimScene::draw()
 	glBindTexture(GL_TEXTURE_2D, m_quadsTexId);
 	glColor3f(1, 1, 1);
 	glBegin(GL_QUADS); 
-		glTexCoord2f( 0,    nrows);	glVertex3f(a[0],0, a[3]); 
-		glTexCoord2f(ncols, nrows);	glVertex3f(a[2],0, a[3]);
-		glTexCoord2f(ncols,  0);	glVertex3f(a[2],0, a[1]); 
-		glTexCoord2f( 0,     0);	glVertex3f(a[0],0, a[1]);
+		glTexCoord2f( 0,    nrows/2);	glVertex3f(a[0],0, a[3]); 
+		glTexCoord2f(ncols/2, nrows/2);	glVertex3f(a[2],0, a[3]);
+		glTexCoord2f(ncols/2,  0);		glVertex3f(a[2],0, a[1]); 
+		glTexCoord2f( 0,     0);		glVertex3f(a[0],0, a[1]);
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
 
@@ -252,12 +252,6 @@ void AnimScene::draw()
 
 	glDisable(GL_STENCIL_TEST);
 
-	// Draw the coordinate axis: x-->red,y-->green,z-->blue
-	/*glBegin(GL_LINES);
-		glColor3f(1,0,0); glVertex3f(0,0,0); glVertex3f(1,0,0); //x axis
-		glColor3f(0,1,0); glVertex3f(0,0,0); glVertex3f(0,1,0); //y axis
-		glColor3f(0,0,1); glVertex3f(0,0,0); glVertex3f(0,0,1); //z axis
-	glEnd();*/
 
 	// Draw agents
 	glEnable(GL_LIGHTING);

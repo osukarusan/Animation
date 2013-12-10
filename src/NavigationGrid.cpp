@@ -34,7 +34,10 @@ void NavigationGrid::init(const std::vector<std::vector<int> >& grid,
 
 bool NavigationGrid::walkable(const Vec3d& pos) const 
 {
-	return walkable(int((pos[2] - m_offZ)/m_sizeZ), int((pos[0] - m_offX)/m_sizeX));
+	float fcol = (pos[0] - m_offX)/m_sizeX;
+	float frow = (pos[2] - m_offZ)/m_sizeZ;
+	if (fcol < 0.0f || frow < 0.0f) return false;
+	return walkable(int(frow), int(fcol));
 }
 
 bool NavigationGrid::walkable(int row, int col) const
