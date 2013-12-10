@@ -16,7 +16,6 @@ float Viewer::ry =   0.0f;
 
 bool Viewer::wire = false;
 
-unsigned int Viewer::quadsTexId = 0;
 unsigned long long Viewer::lastTime = 0;
 
 AnimScene* Viewer::scene = 0;
@@ -31,7 +30,7 @@ Viewer::~Viewer(void) {
 void Viewer::Init(int argc, char *argv[])
 {
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_STENCIL);
 	glutInitWindowSize(win_w, win_h);
 	glutInitWindowPosition(50,50);
 
@@ -51,12 +50,13 @@ void Viewer::Init(int argc, char *argv[])
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_NORMALIZE);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	InitLight();
-	InitTextures();
-
+	
 	if (scene) delete scene;
 	scene = new AnimScene();
 	scene->initScene();
+
+	InitLight();
+	InitTextures();
 
 	lastTime = getTime();
 }
@@ -91,6 +91,7 @@ void Viewer::InitTextures()
 									0.78f, 0.78f, 0.82f
 	};
 
+	unsigned int quadsTexId;
 	glGenTextures(1, &quadsTexId);
 	glBindTexture(GL_TEXTURE_2D, quadsTexId);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -99,6 +100,9 @@ void Viewer::InitTextures()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_FLOAT, texdata);
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+	if (scene)
+		scene->setFloorTextureId(quadsTexId);
 }
 
 void Viewer::BeginLoop()
@@ -116,28 +120,7 @@ void Viewer::Display(void)
 	glRotatef(rx, 1.0, 0.0, 0.0);
 	glRotatef(ry, 0.0, 1.0, 0.0);
 	
-	// Draw a floor surface rectangle
-	glDisable(GL_LIGHTING);
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, quadsTexId);
-	glColor3f(1, 1, 1);
-	glBegin(GL_QUADS); 
-		glTexCoord2f( 0, 10);	glVertex3f(-10,0, 10); 
-		glTexCoord2f(10, 10);	glVertex3f( 10,0, 10);
-		glTexCoord2f(10,  0);	glVertex3f( 10,0,-10); 
-		glTexCoord2f( 0,  0);	glVertex3f(-10,0,-10);
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
-
-	// Draw the coordinate axis: x-->red,y-->green,z-->blue
-	glBegin(GL_LINES);
-		glColor3f(1,0,0); glVertex3f(0,0,0); glVertex3f(1,0,0); //x axis
-		glColor3f(0,1,0); glVertex3f(0,0,0); glVertex3f(0,1,0); //y axis
-		glColor3f(0,0,1); glVertex3f(0,0,0); glVertex3f(0,0,1); //z axis
-	glEnd();
-	glEnable(GL_LIGHTING);
-
-	// Draw particle system
+	// Draw scene
 	scene->draw();
 
 	glutSwapBuffers();

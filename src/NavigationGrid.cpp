@@ -147,3 +147,19 @@ bool NavigationGrid::findPath(const Vec3d& ini, const Vec3d& end, std::vector<Ve
 
 	return arrived;
 }
+
+void NavigationGrid::getObstacleAreas(std::vector<Vec4d>& rects) 
+{
+	for (int i = 0; i < m_rows; i++) {
+		for (int j = 0; j < m_cols; j++) {
+			if (!walkable(i, j)) {
+				Vec4d q;
+				q[0] = j*m_sizeX + m_offX;
+				q[1] = i*m_sizeZ + m_offZ;
+				q[2] = (j+1)*m_sizeX + m_offX;
+				q[3] = (i+1)*m_sizeZ + m_offZ;
+				rects.push_back(q);
+			}
+		}
+	}
+}

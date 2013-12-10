@@ -143,6 +143,8 @@ void AnimScene::initScene()
 
 void AnimScene::update(double dt) 
 {
+	if (dt > 0.20) dt = 0.20;
+
 	int numParticles = m_system->getNumParticles();
 
 	// physics integration
@@ -183,6 +185,56 @@ void AnimScene::update(double dt)
 
 void AnimScene::draw() 
 {
+	// create obstacle stencil mask
+	std::vector<Vec4d> obstacles;
+	m_grid->getObstacleAreas(obstacles);
+
+	glEnable(GL_STENCIL_TEST);
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    glDepthMask(GL_FALSE);
+    glStencilFunc(GL_NEVER, 1, 0xFF);
+    glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);
+	glStencilMask(0xFF);
+	glClear(GL_STENCIL_BUFFER_BIT); 
+	glBegin(GL_QUADS);
+	for (unsigned int i = 0; i < obstacles.size(); i++) {
+		Vec4d& q = obstacles[i];
+		glVertex3f(q[0], 0.0f, q[1]);
+		glVertex3f(q[0], 0.0f, q[3]);
+		glVertex3f(q[2], 0.0f, q[3]);
+		glVertex3f(q[2], 0.0f, q[1]);
+	}
+	glEnd();
+
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glDepthMask(GL_TRUE);
+	glStencilMask(0x00);
+	glStencilFunc(GL_EQUAL, 0, 0xFF);
+
+	// Draw a floor surface rectangle
+	glDisable(GL_LIGHTING);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, m_quadsTexId);
+	glColor3f(1, 1, 1);
+	glBegin(GL_QUADS); 
+		glTexCoord2f( 0, 10);	glVertex3f(-10,0, 10); 
+		glTexCoord2f(10, 10);	glVertex3f( 10,0, 10);
+		glTexCoord2f(10,  0);	glVertex3f( 10,0,-10); 
+		glTexCoord2f( 0,  0);	glVertex3f(-10,0,-10);
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
+
+	glDisable(GL_STENCIL_TEST);
+
+	// Draw the coordinate axis: x-->red,y-->green,z-->blue
+	glBegin(GL_LINES);
+		glColor3f(1,0,0); glVertex3f(0,0,0); glVertex3f(1,0,0); //x axis
+		glColor3f(0,1,0); glVertex3f(0,0,0); glVertex3f(0,1,0); //y axis
+		glColor3f(0,0,1); glVertex3f(0,0,0); glVertex3f(0,0,1); //z axis
+	glEnd();
+	glEnable(GL_LIGHTING);
+
+	// Draw agents
 	glColor3f(1, 1, 1);
 	for (int i = 0; i < m_agents.size(); i++) {
 		m_agents[i]->draw(i == m_drawPathId);

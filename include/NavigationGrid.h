@@ -17,6 +17,8 @@ public:
 
 	bool walkable(const Vec3d& pos);
 
+	void getObstacleAreas(std::vector<Vec4d>& rects);
+
 private:
 
 	bool  walkable(int row, int col);

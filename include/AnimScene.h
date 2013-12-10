@@ -23,6 +23,8 @@ public:
 	int  getDrawPathId() const;
 	void setDrawPathId(int id);
 
+	void setFloorTextureId(unsigned int id);
+
 private:
 
 	ParticleSystem* m_system;
@@ -35,6 +37,8 @@ private:
 
 	int m_drawPathId;
 
+	unsigned int m_quadsTexId;
+
 };
 
 inline void AnimScene::setDrawPathId(int id) {
@@ -43,6 +47,10 @@ inline void AnimScene::setDrawPathId(int id) {
 
 inline int AnimScene::getDrawPathId() const {
 	return m_drawPathId;
+}
+
+inline void AnimScene::setFloorTextureId(unsigned int id) {
+	m_quadsTexId = id;
 }
 
 #endif
