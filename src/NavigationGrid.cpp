@@ -32,19 +32,19 @@ void NavigationGrid::init(const std::vector<std::vector<int> >& grid,
 	m_grid  = grid;
 }
 
-bool NavigationGrid::walkable(const Vec3d& pos) 
+bool NavigationGrid::walkable(const Vec3d& pos) const 
 {
 	return walkable(int((pos[2] - m_offZ)/m_sizeZ), int((pos[0] - m_offX)/m_sizeX));
 }
 
-bool NavigationGrid::walkable(int row, int col)
+bool NavigationGrid::walkable(int row, int col) const
 {
 	if (row < 0 || row >= m_rows) return false;
 	if (col < 0 || col >= m_cols) return false;
 	return m_grid[row][col] == 0;
 }
 
-float NavigationGrid::cost(int cellFrom, int cellTo) 
+float NavigationGrid::cost(int cellFrom, int cellTo) const
 {
 	int c0 = cellFrom%m_cols;
 	int r0 = cellFrom/m_cols;
@@ -53,7 +53,7 @@ float NavigationGrid::cost(int cellFrom, int cellTo)
 	return std::sqrt(float((r1 - r0)*(r1 - r0) + (c1 - c0)*(c1 - c0)));
 }
 
-float NavigationGrid::heuristic(int cellFrom, int cellTo)
+float NavigationGrid::heuristic(int cellFrom, int cellTo) const
 {
 	int c0 = cellFrom%m_cols;
 	int r0 = cellFrom/m_cols;
@@ -148,7 +148,7 @@ bool NavigationGrid::findPath(const Vec3d& ini, const Vec3d& end, std::vector<Ve
 	return arrived;
 }
 
-void NavigationGrid::getObstacleAreas(std::vector<Vec4d>& rects) 
+void NavigationGrid::getObstacleAreas(std::vector<Vec4d>& rects) const
 {
 	for (int i = 0; i < m_rows; i++) {
 		for (int j = 0; j < m_cols; j++) {
@@ -162,4 +162,20 @@ void NavigationGrid::getObstacleAreas(std::vector<Vec4d>& rects)
 			}
 		}
 	}
+}
+
+Vec4d NavigationGrid::getArea() const 
+{
+	Vec4d a;
+	a[0] = m_offX;
+	a[1] = m_offZ;
+	a[2] = m_offX + m_cols*m_sizeX;
+	a[3] = m_offZ + m_rows*m_sizeZ;
+	return a;
+}
+
+void NavigationGrid::getCells(int& rows, int& cols) const 
+{
+	rows = m_rows;
+	cols = m_cols;
 }

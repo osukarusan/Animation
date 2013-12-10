@@ -8,8 +8,6 @@
 #include "NavigationGrid.h"
 #include <vector>
 
-#define NUM_AGENTS	5
-
 class AnimScene
 {
 public:
@@ -24,6 +22,8 @@ public:
 	void setDrawPathId(int id);
 
 	void setFloorTextureId(unsigned int id);
+
+	static unsigned int NUM_AGENTS;
 
 private:
 

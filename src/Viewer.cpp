@@ -42,7 +42,7 @@ void Viewer::Init(int argc, char *argv[])
 	glutMouseFunc   (MouseButtHandler);
     glutMotionFunc  (MouseMoveHandler);
 
-	glClearColor(0.5f, 0.5f, 0.7f, 1.0f);
+	glClearColor(0.6f, 0.6f, 0.8f, 1.0f);
 	Reshape(win_w, win_h); 
 
 	glEnable(GL_DEPTH_TEST);
@@ -146,7 +146,7 @@ void Viewer::Keyboard(unsigned char key, int x, int y) {
 			exit(0);
 			break; 
 		case 'p':
-			scene->setDrawPathId((scene->getDrawPathId() + 1)%(NUM_AGENTS + 1));
+			scene->setDrawPathId((scene->getDrawPathId() + 1)%(AnimScene::NUM_AGENTS + 1));
 	}
 	glutPostRedisplay();
 }

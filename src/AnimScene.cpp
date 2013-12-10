@@ -5,6 +5,8 @@
 #include <fstream>
 
 
+unsigned int AnimScene::NUM_AGENTS = 0;
+
 AnimScene::AnimScene(void)
 {
 	m_system = 0;
@@ -62,6 +64,7 @@ NavigationGrid* loadGrid()
 
 	std::fstream fin;
 	fin.open("data/scene.txt", std::fstream::in);
+	fin >> AnimScene::NUM_AGENTS;
 	fin >> nrows >> ncols;
 	fin >> width >> height;
 	cells.resize(nrows);
@@ -212,29 +215,52 @@ void AnimScene::draw()
 	glStencilFunc(GL_EQUAL, 0, 0xFF);
 
 	// Draw a floor surface rectangle
+	int nrows, ncols;
+	m_grid->getCells(nrows, ncols);
+	Vec4d a = m_grid->getArea();
+	
 	glDisable(GL_LIGHTING);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, m_quadsTexId);
 	glColor3f(1, 1, 1);
 	glBegin(GL_QUADS); 
-		glTexCoord2f( 0, 10);	glVertex3f(-10,0, 10); 
-		glTexCoord2f(10, 10);	glVertex3f( 10,0, 10);
-		glTexCoord2f(10,  0);	glVertex3f( 10,0,-10); 
-		glTexCoord2f( 0,  0);	glVertex3f(-10,0,-10);
+		glTexCoord2f( 0,    nrows);	glVertex3f(a[0],0, a[3]); 
+		glTexCoord2f(ncols, nrows);	glVertex3f(a[2],0, a[3]);
+		glTexCoord2f(ncols,  0);	glVertex3f(a[2],0, a[1]); 
+		glTexCoord2f( 0,     0);	glVertex3f(a[0],0, a[1]);
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
+
+	glLineWidth(2.0f);
+	glColor3f(1.0f, 0.0f, 0.0f);
+	for (unsigned int i = 0; i < obstacles.size(); i++) {
+		Vec4d& q = obstacles[i];
+		glBegin(GL_LINE_LOOP);
+			glVertex3f(q[0], 0.0f, q[1]);
+			glVertex3f(q[0], 0.0f, q[3]);
+			glVertex3f(q[2], 0.0f, q[3]);
+			glVertex3f(q[2], 0.0f, q[1]);
+		glEnd();
+	}
+	glLineWidth(1.0f);
+	glBegin(GL_LINE_LOOP); 
+		glVertex3f(a[0],0, a[3]); 
+		glVertex3f(a[2],0, a[3]);
+		glVertex3f(a[2],0, a[1]); 
+		glVertex3f(a[0],0, a[1]);
+	glEnd();
 
 	glDisable(GL_STENCIL_TEST);
 
 	// Draw the coordinate axis: x-->red,y-->green,z-->blue
-	glBegin(GL_LINES);
+	/*glBegin(GL_LINES);
 		glColor3f(1,0,0); glVertex3f(0,0,0); glVertex3f(1,0,0); //x axis
 		glColor3f(0,1,0); glVertex3f(0,0,0); glVertex3f(0,1,0); //y axis
 		glColor3f(0,0,1); glVertex3f(0,0,0); glVertex3f(0,0,1); //z axis
-	glEnd();
-	glEnable(GL_LIGHTING);
+	glEnd();*/
 
 	// Draw agents
+	glEnable(GL_LIGHTING);
 	glColor3f(1, 1, 1);
 	for (int i = 0; i < m_agents.size(); i++) {
 		m_agents[i]->draw(i == m_drawPathId);

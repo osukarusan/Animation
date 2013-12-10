@@ -15,15 +15,17 @@ public:
 			  float xmin, float zmin, float xmax, float zmax);
 	bool findPath(const Vec3d& ini, const Vec3d& end, std::vector<Vec3d>& path);
 
-	bool walkable(const Vec3d& pos);
+	bool walkable(const Vec3d& pos) const;
 
-	void getObstacleAreas(std::vector<Vec4d>& rects);
+	void  getObstacleAreas(std::vector<Vec4d>& rects) const;
+	Vec4d getArea() const;
+	void  getCells(int& rows, int& cols) const;
 
 private:
 
-	bool  walkable(int row, int col);
-	float cost(int cellFrom, int cellTo);
-	float heuristic(int cellFrom, int cellTo);
+	bool  walkable(int row, int col) const;
+	float cost(int cellFrom, int cellTo) const;
+	float heuristic(int cellFrom, int cellTo) const;
 
 	std::vector<std::vector<int> > m_grid;
 	int		m_rows,  m_cols;
