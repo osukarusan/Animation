@@ -17,8 +17,10 @@ public:
 	void followPath(const std::vector<Vec3d>& path);
 	bool finishedCurrentPath() const;
 
-	int		getType() const;
-	Vec3d	getPosition() const;
+	int		  getType()     const;
+	Vec3d	  getPosition() const;
+	Particle* getParticle() const;
+	float     getRadius()   const;
 	
 private:
 
@@ -50,5 +52,12 @@ inline bool Agent::finishedCurrentPath() const {
 	return m_nextWaypoint >= m_path.size();
 }
 
+inline Particle* Agent::getParticle() const {
+	return m_particle;
+}
+
+inline float Agent::getRadius() const {
+	return m_radius;
+}
 
 #endif

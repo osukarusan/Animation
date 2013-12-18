@@ -23,7 +23,7 @@ void Agent::init(int t, Model* m, Particle* p, float h)
 
 	float sx = m_scale*0.5f*(bmax[0] - bmin[0]);
 	float sz = m_scale*0.5f*(bmax[2] - bmin[2]);
-	m_radius = std::sqrt(sx*sx + sz*sz);
+	m_radius = 0.5*std::sqrt(sx*sx + sz*sz);
 
 	m_nextWaypoint = 0;
 }
@@ -38,18 +38,18 @@ void Agent::update(float dt) {
 	// follow path
 	if (m_nextWaypoint < m_path.size()) {
 
-		Vec3d& p  = m_path[m_nextWaypoint];
+		Vec3d& wp = m_path[m_nextWaypoint];
 
-		Vec3d dir = p - m_particle->pos;
-		float dist = len(dir);
-		normalise(dir);
-		Vec3d vel = m_particle->vel;
-		float speed = len(vel);
-		normalise(vel);
+		// Steering: seek
+		float speed     = len(m_particle->vel);
+		Vec3d desired   = norm(wp - m_particle->pos);
+		Vec3d current   = norm(m_particle->vel);
+		Vec3d steering  = desired - current;
+		Vec3d vresult   = speed*norm(current + 0.4*steering);
+		m_particle->vel = vresult;
 
-		m_particle->vel = speed*norm(vel + 0.5*dir);
-
-		if (len(m_path[m_nextWaypoint] - m_particle->pos) < m_radius)
+		// check if reached waypoint
+		if (len(wp - m_particle->pos) < 1.5*m_radius)
 			m_nextWaypoint++;
 	}
 

@@ -31,11 +31,13 @@ private:
 	EulerIntegrator m_integrator;
 
 	// TODO: change this for a vector of containers
-	CollisionAABB   m_boxContainer;
+	CollisionAABB			   m_boxContainer;
+	std::vector<CollisionAABB> m_obstacles;
 
 	std::vector<Model*> m_models;
 	std::vector<Agent*> m_agents;
 	NavigationGrid*		m_grid;
+	float m_gridSizeX, m_gridSizeZ;
 
 	int m_drawPathId;
 

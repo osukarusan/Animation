@@ -54,6 +54,8 @@ void Viewer::Init(int argc, char *argv[])
 	if (scene) delete scene;
 	scene = new AnimScene();
 	scene->initScene();
+	for (int i = 0; i < 20; i++)
+		scene->update(0.001);
 
 	InitLight();
 	InitTextures();

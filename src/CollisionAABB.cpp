@@ -61,39 +61,56 @@ bool CollisionAABB::testCollision(const Particle *p, double eps, Vec3d& pos, Vec
 		}
 	}
 	else {
+		collision = true;
+
 		// X planes
-		if ((p->pos[0] - bmax[0]) < eps) {
-			pos[0] = bmax[0]; 
-			nor[0] = 1;
-			collision = true;
+		if (((p->pos[0] - bmax[0]) < eps) && ((bmin[0] - p->pos[0]) < eps)) {
+			if (p->prevPos[0] <= bmin[0]) {
+				pos[0] = bmin[0];
+				nor[0] = -1;
+			}
+			else if (p->prevPos[0] >= bmax[0]) {
+				pos[0] = bmax[0];
+				nor[0] = 1;
+			}
+			else {
+				pos[0] = p->pos[0];
+				nor[0] = 0;
+			}
 		}
-		else if ((bmin[0] - p->pos[0]) < eps) {
-			pos[0] = bmin[0];
-			nor[0] = -1;
-			collision = true;
-		}
+		else collision = false;
 		// Y planes
-		if ((p->pos[1] - bmax[1]) < eps) {
-			pos[1] = bmax[1]; 
-			nor[1] = 1;
-			collision = true;
+		if (((p->pos[1] - bmax[1]) < eps) && ((bmin[1] - p->pos[1]) < eps)) {
+			if (p->prevPos[1] <= bmin[1]) {
+				pos[1] = bmin[1];
+				nor[1] = -1;
+			}
+			else if (p->prevPos[1] >= bmax[1]) {
+				pos[1] = bmax[1];
+				nor[1] = 1;
+			}
+			else {
+				pos[1] = p->pos[1];
+				nor[1] = 0;
+			}
 		}
-		else if ((bmin[1] - p->pos[1]) < eps) {
-			pos[1] = bmin[1];
-			nor[1] = -1;
-			collision = true;
-		}
+		else collision = false;
 		// Z planes
-		if ((p->pos[2] - bmax[2]) < eps) {
-			pos[2] = bmax[2]; 
-			nor[2] = 1;
-			collision = true;
+		if (((p->pos[2] - bmax[2]) < eps) && ((bmin[2] - p->pos[2]) < eps)) {
+			if (p->prevPos[2] <= bmin[2]) {
+				pos[2] = bmin[2];
+				nor[2] = -1;
+			}
+			else if (p->prevPos[2] >= bmax[2]) {
+				pos[2] = bmax[2];
+				nor[2] = 1;
+			}
+			else {
+				pos[2] = p->pos[2];
+				nor[2] = 0;
+			}
 		}
-		else if ((bmin[2] - p->pos[2]) < eps) {
-			pos[2] = bmin[2];
-			nor[2] = -1;
-			collision = true;
-		}
+		else collision = false;
 	}
 
 	if (collision) nor.Normalise();

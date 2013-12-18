@@ -92,6 +92,10 @@ void AnimScene::initScene()
 	std::cout << "Loading scene description ..." << std::endl;
 	m_grid = loadGrid();
 
+	Vec4d area = m_grid->getArea();
+	m_gridSizeX = area[2] - area[0];
+	m_gridSizeZ = area[3] - area[1];
+
 	// agents
 	std::cout << std::endl;
 	std::cout << "Initializing agents..." << std::endl;
@@ -102,7 +106,7 @@ void AnimScene::initScene()
 		Particle* p = new Particle();
 		Vec3d pos;
 		do {
-			pos = Vec3d(20.0*random01() - 10, 0, 20.0*random01() - 10);
+			pos = Vec3d(m_gridSizeX*(random01() - 0.5), 0, m_gridSizeZ*(random01() - 0.5));
 		} while (!m_grid->walkable(pos));
 		p->pos = p->prevPos = pos;
 		p->vel = p->prevVel = (1.5*random01() + 0.5) * norm(Vec3d(random01(), 0, random01()));
@@ -129,7 +133,7 @@ void AnimScene::initScene()
 		do {
 			Vec3d dest;
 			do {
-				dest = Vec3d(20.0*random01() - 10, 0, 20.0*random01() - 10);
+				dest = Vec3d(m_gridSizeX*(random01() - 0.5), 0, m_gridSizeZ*(random01() - 0.5));
 			} while (!m_grid->walkable(dest));
 			m_grid->findPath(pos, dest, apath);
 		} while (apath.size() <= 0);
@@ -137,9 +141,21 @@ void AnimScene::initScene()
 	}
 
 	// world limits (min_y is not at 0 since we do not want to detect collisions with it)
-	m_boxContainer.setPosition(Vec3d(-10, -10, -10));
-	m_boxContainer.setSize(Vec3d(20, 20, 20));
+	m_boxContainer.setPosition(Vec3d(-0.5*m_gridSizeX, -10, -0.5*m_gridSizeZ));
+	m_boxContainer.setSize(Vec3d(m_gridSizeX, 20, m_gridSizeZ));
 	m_boxContainer.useInnerSide(true);
+
+	// obstacles
+	std::vector<Vec4d> obstacles;
+	m_grid->getObstacleAreas(obstacles);
+	for (unsigned int i = 0; i < obstacles.size(); i++) {
+		Vec4d& q = obstacles[i];
+		CollisionAABB aabb;
+		aabb.setPosition(Vec3d(q[0], -10, q[1]));
+		aabb.setSize(Vec3d(q[2] - q[0], 20, q[3] - q[1]));
+		aabb.useInnerSide(false);
+		m_obstacles.push_back(aabb);
+	}
 
 }
 
@@ -153,22 +169,45 @@ void AnimScene::update(double dt)
 	// physics integration
 	m_integrator.doStep(m_system, dt);
 
-	// collision with the container
-	double kr  = 1.0;
-	double kt  = 1.0;
-	double eps = 0.016;
+	// collisions
 	Vec3d pos, nor;
-	for (int i = 0; i < numParticles; i++) {
-		Particle *p = m_system->getParticle(i);
+	for (int i = 0; i < NUM_AGENTS; i++) {
+		Particle *p = m_agents[i]->getParticle();
+		float eps   = 0.5f*m_agents[i]->getRadius();
+		
+		// other agents
+		float irad = m_agents[i]->getRadius();
+		for (int j = i + 1; j < NUM_AGENTS; j++) {
+			double dist = len(p->pos - m_agents[j]->getPosition());
+			double srad = irad + m_agents[j]->getRadius();
+			if (dist < srad) {
+				double coll = srad - dist;
+				Vec3d  adir = norm(m_agents[j]->getPosition() - p->pos);
+				p->pos                          -= 0.6*coll*adir;
+				m_agents[j]->getParticle()->pos += 0.6*coll*adir;
+			}
+		}
+
+		// world container
 		if (m_boxContainer.testCollision(p, eps, pos, nor)) {
 			Vec3d velN = dot(nor, p->vel)*nor;
 			Vec3d velT = p->vel - velN;
-			p->vel = kt*velT - kr*velN;
-			p->pos = p->pos - (1 + kr)*(dot(nor, p->pos) - dot(nor, pos))*nor + eps*nor;
+			p->vel = len(p->vel)*norm(velT - 0.1*velN);
+			p->pos = p->pos + 2*eps*nor;
+		}
+
+		// obstacles
+		for (unsigned int oi = 0; oi < m_obstacles.size(); oi++) {
+			if (m_obstacles[oi].testCollision(p, eps, pos, nor)) {
+				Vec3d velN = dot(nor, p->vel)*nor;
+				Vec3d velT = p->vel - velN;
+				p->vel = len(p->vel)*norm(velT - 0.1*velN);
+				p->pos = pos + 2*eps*nor;
+			}
 		}
 	}
 
-	// agents
+	// paths
 	for (int i = 0; i < m_agents.size(); i++) {
 		m_agents[i]->update(dt);
 		if (m_agents[i]->finishedCurrentPath()) {
@@ -176,7 +215,7 @@ void AnimScene::update(double dt)
 			do {
 				Vec3d dest;
 				do {
-					dest = Vec3d(20.0*random01() - 10, 0, 20.0*random01() - 10);
+					dest = Vec3d(m_gridSizeX*(random01() - 0.5), 0, m_gridSizeZ*(random01() - 0.5));
 				} while (!m_grid->walkable(dest));
 				m_grid->findPath(m_agents[i]->getPosition(), dest, apath);
 			} while (apath.size() <= 0);
