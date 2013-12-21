@@ -3,6 +3,7 @@
 
 #include "Model.h"
 #include "Particle.h"
+#include "CollisionSphere.h"
 
 class Agent
 {
@@ -11,7 +12,7 @@ public:
 	~Agent(void);
 
 	void init(int type, Model* m, Particle* p, float height);
-	void update(float dt);
+	void update(float dt, const std::vector<CollisionSphere>& obs, const std::vector<Agent*>& agents);
 	void draw(bool drawPath = false);
 
 	void followPath(const std::vector<Vec3d>& path);

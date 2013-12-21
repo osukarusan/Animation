@@ -69,6 +69,9 @@
     <ClInclude Include="include\NavigationGrid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\CollisionSphere.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Viewer.cpp">
@@ -118,6 +121,9 @@
     </ClCompile>
     <ClCompile Include="src\NavigationGrid.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CollisionSphere.cpp">
+      <Filter>Source Files\Physics</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

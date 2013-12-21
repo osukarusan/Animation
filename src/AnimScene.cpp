@@ -2,6 +2,7 @@
 #include "GL/glut.h"
 #include "ModelLoader.h"
 #include "defines.h"
+#include "CollisionSphere.h"
 #include <fstream>
 
 
@@ -170,13 +171,16 @@ void AnimScene::update(double dt)
 	m_integrator.doStep(m_system, dt);
 
 	// collisions
+	std::vector<std::vector<CollisionSphere> > nearObstacles(NUM_AGENTS);
+	std::vector<std::vector<Agent*> >		   nearAgents(NUM_AGENTS); 
 	Vec3d pos, nor;
 	for (int i = 0; i < NUM_AGENTS; i++) {
 		Particle *p = m_agents[i]->getParticle();
-		float eps   = 0.5f*m_agents[i]->getRadius();
+		float irad  = m_agents[i]->getRadius();
+		float eps   = 0.5f*irad;
+		float viewd = 5*irad;
 		
 		// other agents
-		float irad = m_agents[i]->getRadius();
 		for (int j = i + 1; j < NUM_AGENTS; j++) {
 			double dist = len(p->pos - m_agents[j]->getPosition());
 			double srad = irad + m_agents[j]->getRadius();
@@ -185,6 +189,9 @@ void AnimScene::update(double dt)
 				Vec3d  adir = norm(m_agents[j]->getPosition() - p->pos);
 				p->pos                          -= 0.6*coll*adir;
 				m_agents[j]->getParticle()->pos += 0.6*coll*adir;
+			}
+			else if (dist < viewd) {
+				nearAgents[i].push_back(m_agents[j]);
 			}
 		}
 
@@ -204,12 +211,19 @@ void AnimScene::update(double dt)
 				p->vel = len(p->vel)*norm(velT - 0.1*velN);
 				p->pos = pos + 2*eps*nor;
 			}
+			else if (len(m_obstacles[oi].getCenter() - p->pos) < viewd) {
+				CollisionSphere sph;
+				sph.setPosition(m_obstacles[oi].getCenter());
+				sph.setRadius(0.5*len(m_obstacles[oi].getSize()));
+				sph.useInnerSide(false);
+				nearObstacles[i].push_back(sph);
+			}
 		}
 	}
 
 	// paths
 	for (int i = 0; i < m_agents.size(); i++) {
-		m_agents[i]->update(dt);
+		m_agents[i]->update(dt, nearObstacles[i], nearAgents[i]);
 		if (m_agents[i]->finishedCurrentPath()) {
 			std::vector<Vec3d> apath;
 			do {

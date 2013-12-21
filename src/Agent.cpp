@@ -15,6 +15,7 @@ void Agent::init(int t, Model* m, Particle* p, float h)
 	m_particle = p;
 	m_rotation = 0.0f;
 	m_height   = h;
+	m_velocity = len(p->vel);
 
 	Vec3f bmin, bmax;
 	m_model->getBoundingBox(bmin, bmax);
@@ -33,25 +34,55 @@ void Agent::followPath(const std::vector<Vec3d>& path) {
 	m_nextWaypoint = 0;
 }
 
-void Agent::update(float dt) {
+void Agent::update(float dt, const std::vector<CollisionSphere>& obs, const std::vector<Agent*>& agents) {
 	
+	// current state
+	float speed   = len(m_particle->vel);
+	Vec3d current = m_particle->vel;
+
 	// follow path
+	Vec3d seekSteering(0,0,0);
 	if (m_nextWaypoint < m_path.size()) {
-
 		Vec3d& wp = m_path[m_nextWaypoint];
-
 		// Steering: seek
-		float speed     = len(m_particle->vel);
-		Vec3d desired   = norm(wp - m_particle->pos);
-		Vec3d current   = norm(m_particle->vel);
-		Vec3d steering  = desired - current;
-		Vec3d vresult   = speed*norm(current + 0.4*steering);
-		m_particle->vel = vresult;
-
+		Vec3d desired = speed*norm(wp - m_particle->pos);
+		seekSteering  = desired - current;
 		// check if reached waypoint
 		if (len(wp - m_particle->pos) < 1.5*m_radius)
 			m_nextWaypoint++;
 	}
+
+	// Steering: obstacle avoidance
+	Vec3d obsSteering(0,0,0);
+	Vec3d veldir  = norm(current);
+	double minDist = 1e32;
+	double dweight = 0.5*m_radius;
+	for (unsigned int i = 0; i < obs.size(); i++) {
+		Vec3d toObs   = obs[i].getPosition() - m_particle->pos;
+		double obsDist = dot(veldir, toObs);
+		if (obsDist > 0 && obsDist < 1e32f) {
+			Vec3d obsLateral = toObs - obsDist*veldir;
+			double sideDist = len(obsLateral);
+			if (sideDist < obs[i].getRadius() + m_radius) {
+				Vec3d steerDir    = -norm(obsLateral);
+				float steerWeight = min(dweight/obsDist, 1.0);
+				obsSteering       = steerWeight*steerDir;
+				minDist = obsDist;
+			}
+		}
+	}
+
+	// Steering: unaligned collision avoidance
+	Vec3d collSteering(0,0,0);
+
+
+
+	// Steering sum
+	const double SW = 0.5;
+	const double OW = 10;
+	const double CW = 1.2;
+	Vec3d vresult   = speed*norm(current + SW*seekSteering + OW*obsSteering + CW*collSteering);
+	m_particle->vel = vresult;
 
 	m_model->onUpdate(dt);
 	m_rotation = std::atan2(m_particle->vel[0], m_particle->vel[2])*RAD2DEG;

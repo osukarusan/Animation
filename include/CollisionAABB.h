@@ -15,6 +15,7 @@ public:
 
 	Vec3d getPosition() const;
 	Vec3d getSize() const;
+	Vec3d getCenter() const;
 
 	void setPosition(const Vec3d& p);
 	void setSize(const Vec3d& s);
@@ -36,6 +37,10 @@ inline Vec3d CollisionAABB::getPosition() const {
 
 inline Vec3d CollisionAABB::getSize() const {
 	return m_size;
+}
+
+inline Vec3d CollisionAABB::getCenter() const {
+	return m_position + 0.5*m_size;
 }
 
 inline void CollisionAABB::setPosition(const Vec3d &p) {

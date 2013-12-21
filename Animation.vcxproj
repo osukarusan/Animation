@@ -71,6 +71,7 @@
     <ClInclude Include="include\Agent.h" />
     <ClInclude Include="include\AnimScene.h" />
     <ClInclude Include="include\CollisionAABB.h" />
+    <ClInclude Include="include\CollisionSphere.h" />
     <ClInclude Include="include\CollisionTest.h" />
     <ClInclude Include="include\defines.h" />
     <ClInclude Include="include\EulerIntegrator.h" />
@@ -89,6 +90,7 @@
     <ClCompile Include="src\Agent.cpp" />
     <ClCompile Include="src\AnimScene.cpp" />
     <ClCompile Include="src\CollisionAABB.cpp" />
+    <ClCompile Include="src\CollisionSphere.cpp" />
     <ClCompile Include="src\CollisionTest.cpp" />
     <ClCompile Include="src\EulerIntegrator.cpp" />
     <ClCompile Include="src\Force.cpp" />
