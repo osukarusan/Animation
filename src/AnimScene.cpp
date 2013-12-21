@@ -192,6 +192,7 @@ void AnimScene::update(double dt)
 			}
 			else if (dist < viewd) {
 				nearAgents[i].push_back(m_agents[j]);
+				nearAgents[j].push_back(m_agents[i]);
 			}
 		}
 

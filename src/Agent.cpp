@@ -37,16 +37,16 @@ void Agent::followPath(const std::vector<Vec3d>& path) {
 void Agent::update(float dt, const std::vector<CollisionSphere>& obs, const std::vector<Agent*>& agents) {
 	
 	// current state
-	float speed   = len(m_particle->vel);
-	Vec3d current = m_particle->vel;
+	float speed    = len(m_particle->vel);
+	Vec3d vcurrent = m_particle->vel;
 
 	// follow path
 	Vec3d seekSteering(0,0,0);
 	if (m_nextWaypoint < m_path.size()) {
 		Vec3d& wp = m_path[m_nextWaypoint];
 		// Steering: seek
-		Vec3d desired = speed*norm(wp - m_particle->pos);
-		seekSteering  = desired - current;
+		Vec3d vdesired = speed*norm(wp - m_particle->pos);
+		seekSteering   = vdesired - vcurrent;
 		// check if reached waypoint
 		if (len(wp - m_particle->pos) < 1.5*m_radius)
 			m_nextWaypoint++;
@@ -54,19 +54,19 @@ void Agent::update(float dt, const std::vector<CollisionSphere>& obs, const std:
 
 	// Steering: obstacle avoidance
 	Vec3d obsSteering(0,0,0);
-	Vec3d veldir  = norm(current);
-	double minDist = 1e32;
-	double dweight = 0.5*m_radius;
+	Vec3d  veldir  = norm(vcurrent);
+	double minDist = 5*m_radius;
 	for (unsigned int i = 0; i < obs.size(); i++) {
-		Vec3d toObs   = obs[i].getPosition() - m_particle->pos;
+		Vec3d  toObs   = obs[i].getPosition() - m_particle->pos;
 		double obsDist = dot(veldir, toObs);
-		if (obsDist > 0 && obsDist < 1e32f) {
+		if (obsDist > 0 && obsDist < minDist) {
 			Vec3d obsLateral = toObs - obsDist*veldir;
 			double sideDist = len(obsLateral);
 			if (sideDist < obs[i].getRadius() + m_radius) {
 				Vec3d steerDir    = -norm(obsLateral);
-				float steerWeight = min(dweight/obsDist, 1.0);
-				obsSteering       = steerWeight*steerDir;
+				double dirEffect  = max(dot(veldir, norm(toObs)), 0);
+				float steerWeight = min(0.5*m_radius/obsDist, 1.0);
+				obsSteering       = dirEffect*steerWeight*steerDir;
 				minDist = obsDist;
 			}
 		}
@@ -74,14 +74,29 @@ void Agent::update(float dt, const std::vector<CollisionSphere>& obs, const std:
 
 	// Steering: unaligned collision avoidance
 	Vec3d collSteering(0,0,0);
-
+	Vec3d pfpos = m_particle->pos + 2*dt*m_particle->vel;
+	minDist = 4*m_radius;
+	for (unsigned int i = 0; i < agents.size(); i++) {
+		Vec3d apos = agents[i]->getParticle()->pos;
+		Vec3d avel = agents[i]->getParticle()->vel;
+		if (dot(norm(avel), veldir) < 0.8) {
+			Vec3d afpos     = apos + 2*dt*avel;
+			double collDist = len(afpos - pfpos);
+			if (collDist < minDist) {
+				double collWeight = min(0.5*m_radius/collDist, 1.0);
+				collSteering = collWeight*norm(pfpos - afpos);
+				minDist = collDist;
+			}
+		}
+	}
 
 
 	// Steering sum
-	const double SW = 0.5;
-	const double OW = 10;
-	const double CW = 1.2;
-	Vec3d vresult   = speed*norm(current + SW*seekSteering + OW*obsSteering + CW*collSteering);
+	const double SW = 0.7;
+	const double OW = 3.0;
+	const double CW = 0.8;
+	speed = min(speed + 0.1, m_velocity);
+	Vec3d vresult   = speed*norm(vcurrent + SW*seekSteering + OW*obsSteering + CW*collSteering);
 	m_particle->vel = vresult;
 
 	m_model->onUpdate(dt);
