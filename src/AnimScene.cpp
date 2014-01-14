@@ -182,7 +182,7 @@ void AnimScene::update(double dt)
 	for (int i = 0; i < NUM_AGENTS; i++) {
 		Particle *p = m_agents[i]->getParticle();
 		float irad  = m_agents[i]->getRadius();
-		float eps   = 0.5f*irad;
+		float eps   = 0.4f*irad;
 		float viewd = 5*irad;
 		
 		// other agents
@@ -214,13 +214,13 @@ void AnimScene::update(double dt)
 			if (m_obstacles[oi].testCollision(p, eps, pos, nor)) {
 				Vec3d velN = dot(nor, p->vel)*nor;
 				Vec3d velT = p->vel - velN;
-				p->vel = len(p->vel)*norm(velT - 0.1*velN);
+				p->vel = len(p->vel)*norm(velT - 0.25*velN);
 				p->pos = pos + 2*eps*nor;
 			}
 			else if (len(m_obstacles[oi].getCenter() - p->pos) < viewd) {
 				CollisionSphere sph;
 				sph.setPosition(m_obstacles[oi].getCenter());
-				sph.setRadius(0.5*len(m_obstacles[oi].getSize()));
+				sph.setRadius(0.6*len(m_obstacles[oi].getSize()));
 				sph.useInnerSide(false);
 				nearObstacles[i].push_back(sph);
 			}
@@ -239,6 +239,11 @@ void AnimScene::update(double dt)
 				} while (!m_grid->walkable(dest));
 				m_grid->findPath(m_agents[i]->getPosition(), dest, apath);
 			} while (apath.size() <= 0);
+			m_agents[i]->followPath(apath);
+		}
+		else if (m_agents[i]->isStuckOnPath()) {
+			std::vector<Vec3d> apath;
+			m_grid->findPath(m_agents[i]->getPosition(), m_agents[i]->getDestination(), apath);
 			m_agents[i]->followPath(apath);
 		}
 	}

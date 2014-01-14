@@ -33,6 +33,7 @@ void Agent::init(int t, Model* m, Particle* p, float h)
 void Agent::followPath(const std::vector<Vec3d>& path) {
 	m_path = path;
 	m_nextWaypoint = 0;
+	m_framesSinceLastWP = 0;
 }
 
 void Agent::update(float dt, const std::vector<CollisionSphere>& obs, const std::vector<Agent*>& agents) {
@@ -49,8 +50,13 @@ void Agent::update(float dt, const std::vector<CollisionSphere>& obs, const std:
 		Vec3d vdesired = speed*norm(wp - m_particle->pos);
 		seekSteering   = vdesired - vcurrent;
 		// check if reached waypoint
-		if (len(wp - m_particle->pos) < 1.5*m_radius)
+		if (len(wp - m_particle->pos) < 1.5*m_radius) {
 			m_nextWaypoint++;
+			m_framesSinceLastWP = 0;
+		}
+		else {
+			m_framesSinceLastWP++;
+		}
 	}
 
 	// Steering: obstacle avoidance
@@ -94,8 +100,8 @@ void Agent::update(float dt, const std::vector<CollisionSphere>& obs, const std:
 
 	// Steering sum
 	const double SW = 0.6;
-	const double OW = 1.2;
-	const double CW = 0.7;
+	const double OW = 1.5;
+	const double CW = 0.9;
 	speed = min(speed + 0.1, m_velocity);
 	Vec3d vresult   = speed*norm(vcurrent + SW*seekSteering + OW*obsSteering + CW*collSteering);
 	m_particle->vel = vresult;
