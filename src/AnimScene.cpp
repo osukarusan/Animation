@@ -65,6 +65,11 @@ NavigationGrid* loadGrid()
 
 	std::fstream fin;
 	fin.open("data/scene.txt", std::fstream::in);
+
+	int rseed;
+	fin >> rseed;
+	srand(rseed);
+
 	fin >> AnimScene::NUM_AGENTS;
 	fin >> nrows >> ncols;
 	fin >> height >> width;

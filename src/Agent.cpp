@@ -16,6 +16,7 @@ void Agent::init(int t, Model* m, Particle* p, float h)
 	m_rotation = 0.0f;
 	m_height   = h;
 	m_velocity = len(p->vel);
+	m_rotation = std::atan2(m_particle->vel[0], m_particle->vel[2])*RAD2DEG;
 
 	Vec3f bmin, bmax;
 	m_model->getBoundingBox(bmin, bmax);
@@ -83,7 +84,7 @@ void Agent::update(float dt, const std::vector<CollisionSphere>& obs, const std:
 			Vec3d afpos     = apos + 2*dt*avel;
 			double collDist = len(afpos - pfpos);
 			if (collDist < minDist) {
-				double collWeight = min(0.5*m_radius/collDist, 1.0);
+				double collWeight = (0.4*random01()+0.8)*min(0.5*m_radius/collDist, 1.0);
 				collSteering = collWeight*norm(pfpos - afpos);
 				minDist = collDist;
 			}
@@ -92,15 +93,23 @@ void Agent::update(float dt, const std::vector<CollisionSphere>& obs, const std:
 
 
 	// Steering sum
-	const double SW = 0.7;
-	const double OW = 3.0;
-	const double CW = 0.8;
+	const double SW = 0.6;
+	const double OW = 1.2;
+	const double CW = 0.7;
 	speed = min(speed + 0.1, m_velocity);
 	Vec3d vresult   = speed*norm(vcurrent + SW*seekSteering + OW*obsSteering + CW*collSteering);
 	m_particle->vel = vresult;
 
 	m_model->onUpdate(dt);
-	m_rotation = std::atan2(m_particle->vel[0], m_particle->vel[2])*RAD2DEG;
+
+	// update rotation
+	double curRot = m_rotation;
+	double desRot = std::atan2(m_particle->vel[0], m_particle->vel[2])*RAD2DEG;
+	double difRot = desRot - curRot;
+	if (abs(difRot) > 180) difRot = curRot - desRot;
+	m_rotation = curRot + max(min(difRot, 360*dt), -360*dt);
+	if (m_rotation > 180)   m_rotation -= 360;
+	if (m_rotation < -180)  m_rotation += 360;
 }
 
 void Agent::draw(bool drawPath) {
